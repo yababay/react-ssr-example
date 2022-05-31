@@ -4,5 +4,6 @@ async function signinSubmit(e){
     if(responce.status > 299) throw 'Не удалось загрузить форму регистрации.';
     const html = await responce.text()
     document.querySelector('main').innerHTML = html;
+    document.querySelector('#signin-button').textContent = 'Выйти';
 }
 
