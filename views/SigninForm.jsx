@@ -7,11 +7,11 @@ function SignIn() {
           <form id="signin-form">
               <div className="form-group">
                   <label htmlFor="signup-username">Имя пользователя</label>
-                  <input type="text" className="form-control" id="signup-username" aria-describedby="username-help" placeholder="Введите имя пользователя" />
+                  <input name="username" type="text" className="form-control" id="signup-username" aria-describedby="username-help" placeholder="Введите имя пользователя" />
               </div>
               <div className="form-group">
                   <label htmlFor="signup-password">Пароль</label>
-                  <input type="password" className="form-control" id="signup-password" aria-describedby="password-help" placeholder="Введите пароль" />
+                  <input name="password" type="password" className="form-control" id="signup-password" aria-describedby="password-help" placeholder="Введите пароль" />
               </div>
               <p className="text-end">
                   <button type="submit" className="btn btn-primary">Войти</button>

@@ -11,11 +11,13 @@ export default function Header (props){
                 </button>
                 <a className="navbar-brand ms-3" href="#/">
                     <img className="me-2" src="img/logo.svg" alt="logo" width="32" height="32" />
-                    <span>Привет, мир!</span>
+                    <span>Привет, {props.user && props.user.username || 'мир'}!</span>
                 </a>
                 <div>
-                    <button id="signup-button" className="btn btn-primary">Присоединиться</button>
-                    <button id="signin-button" className="btn btn-primary">Войти</button>
+                    {
+                        !props.user ?  <button id="signup-button" className="btn btn-primary">Зарегистрироваться</button> : ''
+                    }
+                    <button id="signin-button" className="btn btn-primary">Выйти</button>
                 </div>
             </nav>
         </header>

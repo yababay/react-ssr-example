@@ -2,11 +2,12 @@ const indexRouter = require('express').Router();
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
 const App = require('../views/App');
-const SignUp = require('../views/SignUp');
-const SignIn = require('../views/SignIn');
+const SignUp = require('../views/SignupForm');
+const SignIn = require('../views/SigninForm');
 
-indexRouter.get('/', (_, res) => {
-  const app = React.createElement(App);
+indexRouter.get('/', (req, res) => {
+  const user = req.session && req.session.user  
+  const app = React.createElement(App, {user});
   const html = ReactDOMServer.renderToStaticMarkup(app);
   res.write('<!doctype html>');
   res.end(html);

@@ -1,22 +1,43 @@
-const authRouter = require('express').Router();
+const authRouter = require('express').Router(); 
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
-const SignupSuccess = require('../views/SignupSuccess');
-const SigninSuccess = require('../views/SigninSuccess');
+const { SignupSuccess, SignupError } = require('../views/SignupResult');
+const { SigninSuccess, SigninError } = require('../views/SigninResult');
 const bcrypt = require('bcrypt')
 const { User } = require('../db/models/index')
 
 const logger = console
 
 authRouter.post('/signup', async (req, res) => {
-    const { username, password } = req.body
+    const { username, password, email} = req.body
+    const emailCheck = await User.findOne({
+        where: {
+            email,
+        },
+    });
+    if (emailCheck) {
+        const app = React.createElement(SignupError, { error: 'Пользователь с таким email уже существует' });
+        const html = ReactDOMServer.renderToStaticMarkup(app);
+        return res.status(500).send(html);
+    }
+    const usernameCheck = await User.findOne({
+        where: {
+            username,
+        },
+    });
+    if (usernameCheck) {
+        const app = React.createElement(SignupError, { error: 'Пользователь с таким логином уже существует' });
+        const html = ReactDOMServer.renderToStaticMarkup(app);
+        return res.status(500).send(html);
+    }
     try {
         // Мы не храним пароль в БД, только его хэш
         const saltRounds = Number(process.env.SALT_ROUNDS ?? 10)
-        //const hashedPassword = await bcrypt.hash(password, saltRounds)
+        const hashedPassword = await bcrypt.hash(password, saltRounds)
         const user = await User.create({
             username,
-            password //: hashedPassword
+            password: hashedPassword,
+            email
         })
         req.session.user = serializeUser(user)
     } catch (err) {
@@ -28,11 +49,47 @@ authRouter.post('/signup', async (req, res) => {
     res.end(html);
 });
 
-authRouter.get('/signin', (_, res) => {
-  const app = React.createElement(SigninSuccess);
-  const html = ReactDOMServer.renderToStaticMarkup(app);
-  res.end(html);
+authRouter.post('/signin', async (req, res) => {
+  const { username, password } = req.body;
+  let user;
+  try {
+    user = await User.findOne({
+      where: {
+        username,
+      },
+    });
+  } catch (err) {
+    logger.err(err)  
+    const app = React.createElement(SignupError, { error: 'Ошибка во время входа.' });
+    const html = ReactDOMServer.renderToStaticMarkup(app);
+    return res.status(500).send(html);
+  }
+  if (!user) {
+    const app = React.createElement(SignupError, { error: 'Такой пользователь не найден.' });
+    const html = ReactDOMServer.renderToStaticMarkup(app);
+    return res.status(404).send(html);
+  }
+  let isSame;
+  try {
+    isSame = await bcrypt.compare(password, user.password);
+  } catch (err) {
+    const app = React.createElement(SignupError, { error: 'Ошибка во время входа.' });
+    const html = ReactDOMServer.renderToStaticMarkup(app);
+    return res.status(500).send(html);
+  }
+  if (!isSame) {
+    const app = React.createElement(SignupError, { error: 'Введены неправильные учетные данные.' });
+    const html = ReactDOMServer.renderToStaticMarkup(app);
+    return res.status(404).send(html);
+  }
+  req.session.user = serializeUser(user);
+  res.end()
 });
+
+function serializeUser(user) {
+  const  { id, username } = user;  
+  return { id, username }
+}
 
 /*
 router

@@ -1,10 +1,9 @@
 {
   "development": {
     "username": "artem",
-    "password": "Learning-2022",
+    "password": "postgres",
     "database": "artem",
-    "host": "localhost",
-    "port": "5432",
+    "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "test": {
