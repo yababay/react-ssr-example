@@ -1,9 +1,19 @@
-const React = require('react');
+import React  from 'react'
+import Head   from './Head'
+import Header from './Header'
+import Main   from './Main'
 
 function App() {
   return (
-      <h1>Hi, {Math.random()}!</h1>
+      <html>
+          <Head />  
+          <body>
+              <Header />
+              <Main />
+          </body>
+      </html>
   );
 }
 
 module.exports = App;
+

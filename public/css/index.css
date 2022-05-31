@@ -1,0 +1,21 @@
+#signup-button, #signin-button {
+    margin-right: 1rem;
+}
+
+#signin-form,
+#signup-form {
+    margin-top: 5rem;
+}
+
+#signup-form label,
+#signup-form [type=submit],
+#signin-form label,
+#signin-form [type=submit] {
+    margin-top: 1rem;
+}
+
+main {
+    margin: 1rem auto;
+    max-width: 80ch;
+}
+
