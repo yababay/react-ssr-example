@@ -3,11 +3,29 @@ const React = require('react');
 const ReactDOMServer = require('react-dom/server');
 const SignupSuccess = require('../views/SignupSuccess');
 const SigninSuccess = require('../views/SigninSuccess');
+const bcrypt = require('bcrypt')
+const { User } = require('../db/models/index')
 
-authRouter.get('/signup', (_, res) => {
-  const app = React.createElement(SignupSuccess);
-  const html = ReactDOMServer.renderToStaticMarkup(app);
-  res.end(html);
+const logger = console
+
+authRouter.post('/signup', async (req, res) => {
+    const { username, password } = req.body
+    try {
+        // Мы не храним пароль в БД, только его хэш
+        const saltRounds = Number(process.env.SALT_ROUNDS ?? 10)
+        //const hashedPassword = await bcrypt.hash(password, saltRounds)
+        const user = await User.create({
+            username,
+            password //: hashedPassword
+        })
+        req.session.user = serializeUser(user)
+    } catch (err) {
+        logger.error(err)
+        return res.end(err)
+    }
+    const app = React.createElement(SignupSuccess);
+    const html = ReactDOMServer.renderToStaticMarkup(app);
+    res.end(html);
 });
 
 authRouter.get('/signin', (_, res) => {
@@ -17,6 +35,29 @@ authRouter.get('/signin', (_, res) => {
 });
 
 /*
+router
+  .route('/signup')
+  // Страница регистрации пользователя
+  .get((req, res) => res.render('signup', { isSignup: true }))
+  // Регистрация пользователя
+  .post(async (req, res) => {
+    const { username, password, email } = req.body
+    try {
+      // Мы не храним пароль в БД, только его хэш
+      const saltRounds = Number(process.env.SALT_ROUNDS ?? 10)
+      const hashedPassword = await bcrypt.hash(password, saltRounds)
+      const user = await User.create({
+        username,
+        password: hashedPassword,
+        email,
+      })
+      req.session.user = serializeUser(user)
+    } catch (err) {
+      logger.error(err)
+      return failAuth(res)
+    }
+    return res.end()
+  })
 const bcrypt = require('bcrypt');
 const LoginPage = require('../views/LoginPage');
 const { User } = require('../db/models');
